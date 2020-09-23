@@ -3,7 +3,6 @@ const cors = require("cors");
 const logger = require("morgan");
 const dotenv = require("dotenv");
 const express = require("express");
-const socketio = require("socket.io");
 const bodyParser = require("body-parser");
 const { mongoUtil } = require("./utils");
 const { userRoutes } = require("./routes");
@@ -18,7 +17,7 @@ dotenv.config();
 // Init app
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
+require("./utils/socket").initSocket(server);
 
 app.use(cors());
 app.use(logger("dev"));
