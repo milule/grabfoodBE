@@ -1,10 +1,13 @@
-var express = require("express");
-var bodyParser = require("body-parser");
-var logger = require("morgan");
-var cors = require("cors");
-var dotenv = require("dotenv");
-var { mongoUtil } = require("./utils");
-var { userRoutes } = require("./routes");
+const http = require("http");
+const cors = require("cors");
+const logger = require("morgan");
+const dotenv = require("dotenv");
+const express = require("express");
+const socketio = require("socket.io");
+const bodyParser = require("body-parser");
+const { mongoUtil } = require("./utils");
+const { userRoutes } = require("./routes");
+// Create the http server
 
 // Init mongo and mongoose
 mongoUtil.initMongoose();
@@ -13,7 +16,9 @@ mongoUtil.initMongoose();
 dotenv.config();
 
 // Init app
-var app = express();
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
 
 app.use(cors());
 app.use(logger("dev"));
@@ -27,4 +32,10 @@ app.get("/", (req, res) => {
 
 app.use("/user", userRoutes);
 
-module.exports = app;
+// Catch 404 and forward to error handler
+app.use(function (req, res, next) {});
+
+// Error handler
+app.use(function (err, req, res, next) {});
+
+module.exports = { app: app, server: server };
