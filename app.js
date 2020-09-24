@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const express = require("express");
 const bodyParser = require("body-parser");
 const { mongoUtil } = require("./utils");
-const { userRoutes } = require("./routes");
+const { userRoutes, orderRoutes } = require("./routes");
 // Create the http server
 
 // Init mongo and mongoose
@@ -30,6 +30,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/user", userRoutes);
+app.use("/order", orderRoutes);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {});

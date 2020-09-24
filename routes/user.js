@@ -13,10 +13,12 @@ const { HTTP, USER } = require("../constanst");
  */
 
 router.post("/signup", async (req, res) => {
-  const { username, password, email, role } = {
+  const { username, password, email, role, phone, name } = {
     username: "user1",
     password: "123456",
     email: "user1@gmail.com",
+    name: "Dũng Customer",
+    phone: "09090909",
     role: USER.USER_ROLE.CUSTOMER,
   };
   try {
@@ -37,6 +39,8 @@ router.post("/signup", async (req, res) => {
       email,
       password,
       role,
+      phone,
+      name,
     });
 
     const salt = await bcrypt.genSalt(10);
