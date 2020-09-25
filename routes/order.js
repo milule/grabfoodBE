@@ -6,7 +6,11 @@ const { authMdw } = require("../middlewares");
 const { HTTP, USER } = require("../constanst");
 
 router.get("/check", authMdw.checkAuth, (req, res) => {
-  console.log(req);
+  try {
+    console.log(req.user);
+  } catch (error) {
+    console.log("Cannot find");
+  }
 });
 
 module.exports = router;

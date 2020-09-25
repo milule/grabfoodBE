@@ -77,16 +77,17 @@ function processDriverService(params) {
     );
 
     if (!reqCustomer) return;
-    listDriver[info.username].active = false;
-    reqCustomer.instance.emit("accept-request", data);
-
     const uuid = uuidv4();
+
     listDriver[info.username].order = uuid;
+    listDriver[info.username].active = false;
+
+    reqCustomer.instance.emit("accept-request", { uuid, ...data });
 
     const order = new orderModel({
-      uuid: uuid,
-      status: ORDER.ORDER_STATUS.IN_PROCESS,
       ...data,
+      uuid,
+      status: ORDER.ORDER_STATUS.IN_PROCESS,
     });
 
     await order.save();
