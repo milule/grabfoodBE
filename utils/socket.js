@@ -28,7 +28,7 @@ function handleConnection(socket) {
     instance: socket,
     active: true,
   };
-  console.log(params);
+
   if (isCustommer) {
     processCustomerService(params);
   } else {
@@ -45,11 +45,12 @@ function processCustomerService(params) {
 
   socket.on("disconnect", () => {
     delete listUser[info.name];
+    console.log(Object.keys(listUser));
   });
 
   socket.on("request", (data) => {
     const freeDriver = Object.values(listDriver).find(({ active }) => active);
-    if (!freeDriver) {
+    if (freeDriver) {
       freeDriver.instance.emit("pending-request", data);
       return;
     }
@@ -67,6 +68,7 @@ function processDriverService(params) {
 
   socket.on("disconnect", () => {
     delete listDriver[info.name];
+    console.log(Object.keys(listDriver));
   });
 
   socket.on("accept-request", async (data) => {
