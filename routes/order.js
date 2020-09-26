@@ -73,11 +73,13 @@ router.post("/orderComplete", authMdw.checkAuth, async (req, res) => {
       data: null,
     });
 
-    const user = socketUsers[customer];
+    setDriverActive(username);
+
+    const user = socketUsers(customer);
+
     if (!user) return;
 
     user.instance.emit("complete-request");
-    setDriverActive(username);
   } catch (error) {
     console.log(error);
     res.status(200).json({

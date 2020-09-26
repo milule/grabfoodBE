@@ -44,14 +44,14 @@ function processCustomerService(params) {
 
   socket.on("disconnect", () => {
     delete listUser[info.name];
-    console.log(Object.keys(listUser));
+    console.log(Object.keys(listUser), "list user exist");
   });
 
   socket.on("request", (data) => {
     const freeDriver = Object.values(listDriver).find(({ active }) => active);
     if (freeDriver) {
       const uuid = uuidv4();
-      freeDriver.instance.emit("pending-request", {...data, uuid});
+      freeDriver.instance.emit("pending-request", { ...data, uuid });
       return;
     }
 
@@ -71,7 +71,7 @@ async function processDriverService(params) {
 
   socket.on("disconnect", () => {
     delete listDriver[info.name];
-    console.log(Object.keys(listDriver));
+    console.log(Object.keys(listDriver), "list driver exist");
   });
 
   socket.on("accept-request", async (data) => {
@@ -124,10 +124,18 @@ function setDriverActive(driver) {
   listDriver[driver].active = true;
 }
 
+function socketUsers(user) {
+  return listUser[user];
+}
+
+function socketDriver(driver) {
+  return listDriver[driver];
+}
+
 module.exports = {
   initSocket,
   setDriverActive,
+  socketUsers,
+  socketDriver,
   socketInstance: () => instance,
-  socketUsers: () => listUser,
-  socketDriver: () => listDriver,
 };
