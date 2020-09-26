@@ -1,7 +1,6 @@
 const socketio = require("socket.io");
 const { v4: uuidv4 } = require("uuid");
-const { USER } = require("../constanst");
-const { ORDER } = require("../constanst");
+const { ORDER, USER } = require("../constanst");
 const { orderModel } = require("../schemas");
 
 let instance = null;
@@ -51,7 +50,8 @@ function processCustomerService(params) {
   socket.on("request", (data) => {
     const freeDriver = Object.values(listDriver).find(({ active }) => active);
     if (freeDriver) {
-      freeDriver.instance.emit("pending-request", data);
+      const uuid = uuidv4();
+      freeDriver.instance.emit("pending-request", {...data, uuid});
       return;
     }
 
@@ -61,9 +61,12 @@ function processCustomerService(params) {
   });
 }
 
-function processDriverService(params) {
+async function processDriverService(params) {
   const info = params;
-  listDriver[info.username] = info;
+  const active = await checkBusy(info);
+
+  listDriver[info.username] = { ...info, active };
+
   const socket = info.instance;
 
   socket.on("disconnect", () => {
@@ -77,16 +80,13 @@ function processDriverService(params) {
     );
 
     if (!reqCustomer) return;
-    const uuid = uuidv4();
 
-    listDriver[info.username].order = uuid;
     listDriver[info.username].active = false;
 
-    reqCustomer.instance.emit("accept-request", { uuid, ...data });
+    reqCustomer.instance.emit("accept-request", data);
 
     const order = new orderModel({
       ...data,
-      uuid,
       status: ORDER.ORDER_STATUS.IN_PROCESS,
     });
 
@@ -103,8 +103,30 @@ function processDriverService(params) {
   });
 }
 
+async function checkBusy(info) {
+  try {
+    const { username } = info;
+
+    const order = await orderModel.find({
+      driver: username,
+      status: ORDER.ORDER_STATUS.IN_PROCESS,
+    });
+
+    if (!Array.isArray(order) || !order.length) throw Error;
+
+    return false;
+  } catch (error) {
+    return true;
+  }
+}
+
+function setDriverActive(driver) {
+  listDriver[driver].active = true;
+}
+
 module.exports = {
   initSocket,
+  setDriverActive,
   socketInstance: () => instance,
   socketUsers: () => listUser,
   socketDriver: () => listDriver,
